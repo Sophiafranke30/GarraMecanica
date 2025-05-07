@@ -1,1 +1,44 @@
 //Sophia Franke y Dulce Ovando
+//Utilización de la librería de LCD display normal
+#include <LiquidCrystal.h>
+LiquidCrystal ldc();
+
+//Librería de los servomotores
+#include <Servo.h>
+Servo Servo1, Servo2, Servo3, Servo4;
+int angulos[4]={0,0,0,0};
+
+//Librería para evitar el rebote electrónico (ruido) de los botones
+#include <Bounce2.h> 
+Bounce btnNext = Bounce();
+Bounce btnPrev = Bounce();
+
+//Definición de pines generales para joysticks, pines de cambio rutina automática, pin modo manual o automático y indicación del modo mediante LED
+const int joystick[4]={};
+const int pinNext=;
+const int pinPrev=;
+const int pinModo=;
+const int ledManual=;
+const int ledAuto=;
+
+//Definición de la rutina automática
+const int pasos =5;
+int rutina[pasos][4]={
+  {}
+  {}
+  {}
+  {}
+};
+int pasoActual=0;
+
+//Definición de funciones personalizadas
+
+void setup() {
+lcd.begin(20,4);
+
+}
+
+void loop() {
+
+}
+}
