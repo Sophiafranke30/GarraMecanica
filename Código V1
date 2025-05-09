@@ -32,6 +32,13 @@ int rutina[pasos][4]={
 int pasoActual=0;
 
 //Definición de funciones personalizadas
+//Función para la leer los joysticks
+void lecturaJoystick(){
+for (int i=0;i<4;i++){
+int vall=analogRead(Joystick[i]);
+angulos[i]=map(vall,0,1023,0,180);
+}
+}
 
 void setup() {
 lcd.begin(20,4);
