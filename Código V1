@@ -1,3 +1,6 @@
+//Se dejó de escribir aquí el viernes 9 de mayo ya que se empezó a escribir en el archivo .ino
+
+
 //Sophia Franke y Dulce Ovando
 //Utilización de la librería de LCD display normal
 #include <LiquidCrystal.h>
