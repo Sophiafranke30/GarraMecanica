@@ -26,7 +26,10 @@ Cada servomotor se controla con cada eje del joystick en tiempo real. Los ángul
 Se ejecutan los 5 pasos o posiciones preprogramados controlados por los 2 pushbuttons. Los ángulos de los 4 servomotores se presentan en la pantalla LCD.
 
 ## Funciones a utilizar:
-### " "
+### "LecturaJoystick():"
+lee los 2 ejes del joystick (4 ejes en total para 4 seromotores) y los mapea en ángulos de 0° a 180°. Guarda estas lecturas en el array 'angulos[]'.
+### "():"
+texto texto
 
 ## Notas adicionales:
 - Se utiliza la librería Bounce2 que ayuda a evitar el rebote electrónico de los botones a la hora de presionarlos.
