@@ -49,7 +49,7 @@ void setup() {
   pinMode(LEDMM, OUTPUT);
   pinMode(PINNext, INPUT);
   pinMode(PINBefore, INPUT);
-  pinMode(PINNext, INPUT);
+  pinMode(PINMode, INPUT);
 
   PBNext.attach(PINNext);
   PBNext.interval(25);
