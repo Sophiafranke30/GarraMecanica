@@ -1,4 +1,5 @@
 //Pegado de WOKWI, Versión inicial del código
+//PROBLEMAS: Lectura de joystick no se muestra en la pantalla LCD, Switch cambia hasta el segundo cambio (no el primero); pushbuttons no realizan el cambio de configuraciones como debería.
 #include <LiquidCrystal.h>
 #include <Servo.h>
 #include <Bounce2.h>
