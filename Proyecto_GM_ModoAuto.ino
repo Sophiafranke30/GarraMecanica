@@ -11,7 +11,7 @@ const int PINNext = A5;
 const int PINBefore = A4;
 const int PINMode = 11;
 const int LEDMA = 13;
-const int LEDMM = A7;
+const int LEDMM = A3;
 bool modoManual = false;
 
 Bounce PBNext = Bounce();
@@ -20,7 +20,11 @@ Bounce PBMode = Bounce();
 
 const int configuraciones = 5;
 int rutina[configuraciones][4] = {
-{90,90,90,90}, {45,90,135,90},{90,45,90,180},{135,135,45,45},{180,90,90,45}
+{90,90,90,90}, 
+{45,90,135,90},
+{90,45,90,180},
+{135,135,45,45},
+{180,90,90,45}
 }
 
 int ConfigActual = 0;
@@ -65,31 +69,24 @@ void loop() {
   PBBefore.update();
   PBMode.update();
 
-  int evento = -1;
-  if(PBMode.fell()) evento =0);
-    else if (PBNext.fell()) evento = 1;
-    else if (PBBefore.fell()) evento =2;
-
-  switch (evento){
-    case 0:
-      modoManual = !modoManual;
-      ModoLED(modomanual);
-      break;
-    case 1:
-      if(modoManual){
-        NextConfig();
-        MoverServos();
-        MostrarenLCD();
+ if (PBMode.fell()){
+    modoManual = !modoManual;
+    ModoLEC(modoManual);
+ }
+if (modoManual){
+    if (PBNext,fell()){
+      NextConfig();
+      MoverServos();
+      MostrarenLCD();
       }
-      break;
-    case 2:
-     if(modoManual){
-        BeforeConfig();
-        MoverServos();
-        MostrarenLCD();
-     }
-      break;
-    delay (70);   }}
+    if (PBBefore.fell()){
+      PrevConfig();
+      MoverServos();
+      MostrarenLCD();
+      }
+}
+    
+delay(75);
 
 void LoadConfig(){
   for (int i=0; int < 4; i++){
