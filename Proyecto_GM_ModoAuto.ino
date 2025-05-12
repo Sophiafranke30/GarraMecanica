@@ -5,13 +5,13 @@
 LiquidCrystal lcd(12,4,10,8,7,2);
 
 Servo servo1, servo2, servo3, servo4;
-int angulo={90,90,90,90};
+int angulos[4]={90,90,90,90};
 
 const int PINNext = A5;
 const int PINBefore = A4;
 const int PINMode = 11;
-const int LEDMA = 13;
-const int LEDMM = A3;
+const int LEDMA = A3;
+const int LEDMM = 13;
 bool modoManual = false;
 
 Bounce PBNext = Bounce();
@@ -25,7 +25,7 @@ int rutina[configuraciones][4] = {
 {90,45,90,180},
 {135,135,45,45},
 {180,90,90,45}
-}
+};
 
 int ConfigActual = 0;
 
@@ -71,10 +71,10 @@ void loop() {
 
  if (PBMode.fell()){
     modoManual = !modoManual;
-    ModoLEC(modoManual);
+    ModoLED(modoManual);
  }
 if (modoManual){
-    if (PBNext,fell()){
+    if (PBNext.fell()){
       NextConfig();
       MoverServos();
       MostrarenLCD();
@@ -85,14 +85,9 @@ if (modoManual){
       MostrarenLCD();
       }
 }
+delay(50);
+}
     
-delay(75);
-
-void LoadConfig(){
-  for (int i=0; int < 4; i++){
-  angulo[i] = rutina[ConfigActual][i];
-  } }
-
 void NextConfig() {
   ConfigActual=(ConfigActual + 1) % configuraciones;
   LoadConfig();
@@ -102,17 +97,23 @@ void PrevConfig(){
   ConfigActual=(ConfigActual - 1 + configuraciones) % configuraciones;
   LoadConfig();
 } 
+
+void LoadConfig(){
+  for (int i=0; i < 4; i++){
+  angulos[i] = rutina[ConfigActual][i];
+  } }
+
 void MoverServos() {
-  servo1.write(angulo[0]);
-  servo2.write(angulo[1]);
-  servo3.write(angulo[2]);
-  servo4.write(angulo[3]);
+  servo1.write(angulos[0]);
+  servo2.write(angulos[1]);
+  servo3.write(angulos[2]);
+  servo4.write(angulos[3]);
 }
 void MostrarenLCD() {
-  lcd.setCursor(0,0) ; lcd.print("Servo 1: "); lcd.print(angulo[0]);
-  lcd.setCursor(0,1) ; lcd.print("Servo 2: "); lcd.print(angulo[1]);
-  lcd.setCursor(0,2) ; lcd.print("Servo 3: "); lcd.print(angulo[2]);
-  lcd.setCursor(0,3) ; lcd.print("Servo 4: "); lcd.print(angulo[3]);
+  lcd.setCursor(0,0) ; lcd.print("Servo 1: "); lcd.print(angulos[0]);
+  lcd.setCursor(0,1) ; lcd.print("Servo 2: "); lcd.print(angulos[1]);
+  lcd.setCursor(0,2) ; lcd.print("Servo 3: "); lcd.print(angulos[2]);
+  lcd.setCursor(0,3) ; lcd.print("Servo 4: "); lcd.print(angulos[3]);
 }
 
 void ModoLED(bool manual){
