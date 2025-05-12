@@ -91,19 +91,19 @@ void loop() {
       break;
     delay (70);   }}
 
-void CargarConfig(){
+void LoadConfig(){
   for (int i=0; int < 4; i++){
   angulo[i] = rutina[ConfigActual][i];
   } }
 
-void AvanzarConfig() {
+void NextConfig() {
   ConfigActual=(ConfigActual + 1) % configuraciones;
-  CargarConfig();
+  LoadConfig();
 }
 
-void RetrocederConfig(){
+void PrevConfig(){
   ConfigActual=(ConfigActual - 1 + configuraciones) % configuraciones;
-  CargarConfig();
+  LoadConfig();
 } 
 void MoverServos() {
   servo1.write(angulo[0]);
