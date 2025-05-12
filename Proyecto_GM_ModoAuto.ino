@@ -89,7 +89,37 @@ void loop() {
         MostrarenLCD();
      }
       break;
-    delay (70);
+    delay (70);   }}
 
-    
+void CargarConfig(){
+  for (int i=0; int < 4; i++){
+  angulo[i] = rutina[ConfigActual][i];
+  } }
+
+void AvanzarConfig() {
+  ConfigActual=(ConfigActual + 1) % configuraciones;
+  CargarConfig();
 }
+
+void RetrocederConfig(){
+  ConfigActual=(ConfigActual - 1 + configuraciones) % configuraciones;
+  CargarConfig();
+} 
+void MoverServos() {
+  servo1.write(angulo[0]);
+  servo2.write(angulo[1]);
+  servo3.write(angulo[2]);
+  servo4.write(angulo[3]);
+}
+void MostrarenLCD() {
+  lcd.setCursor(0,0) ; lcd.print("Servo 1: "); lcd.print(angulo[0]);
+  lcd.setCursor(0,1) ; lcd.print("Servo 2: "); lcd.print(angulo[1]);
+  lcd.setCursor(0,2) ; lcd.print("Servo 3: "); lcd.print(angulo[2]);
+  lcd.setCursor(0,3) ; lcd.print("Servo 4: "); lcd.print(angulo[3]);
+}
+
+void ModoLED(bool manual){
+  digitalWrite(LEDMM, manual ? HIGH:LOW); //OPeración ternario equivalente a if else if
+  digitalWrite(LEDMA, manual ? LOW:HIGH);
+}
+
