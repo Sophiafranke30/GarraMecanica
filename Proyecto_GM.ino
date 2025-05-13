@@ -1,3 +1,6 @@
+//Sophia Franke 23030
+//Dulce Ovando 23441
+//Proyecto 2 Electrónica Digital 1
 //Pegado de WOKWI, Versión final del código
 #include <LiquidCrystal.h> 
 #include <Servo.h>
@@ -90,7 +93,7 @@ void loop() {
   if (nuevoModoManual != modoManual);{
     modoManual = nuevoModoManual;
     ModoLED(modoManual);
-    if (!ModoManual){
+    if (!modoManual){
       LoadConfig();
       MoverServos();
       MostrarenLCD();
