@@ -1,0 +1,157 @@
+#include <LiquidCrystal.h>
+#include <Servo.h>
+#include <Bounce2.h>
+
+// LCD: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(12, 4, 10, 8, 7, 2);
+
+// Servos
+Servo servo1, servo2, servo3, servo4;
+int angulos[4] = {90, 90, 90, 90};
+
+// Joysticks: [Joystick1 H, Joystick1 V, Joystick2 H, Joystick2 V]
+const int joystick[4] = {A2, A3, A0, A1};
+
+// Botones y switch
+const int PINNext = A5;     // Botón Siguiente
+const int PINBefore = 13;   // Botón Anterior
+const int PINMode = 11;    // Switch de modo (Automático / Manual)
+
+// LEDs
+const int LEDMA = 0;       // LED modo automático
+const int LEDMM = 1;       // LED modo manual
+
+bool modoManual = false;
+
+Bounce PBNext = Bounce();
+Bounce PBBefore = Bounce();
+
+const int configuraciones = 5;
+int rutina[configuraciones][4] = {
+  {90, 90, 90, 90},
+  {45, 90, 135, 90},
+  {90, 45, 90, 180},
+  {135, 135, 45, 45},
+  {180, 90, 90, 45}
+};
+
+int ConfigActual = 0;
+
+void ModoLED(bool manual);
+void MoverServos();
+void MostrarenLCD();
+void NextConfig();
+void PrevConfig();
+void LoadConfig();
+void LeerJoysticks();
+String formatAngle(int angle);
+
+void setup() {
+  lcd.begin(20, 4);
+  
+  servo1.attach(9);
+  servo2.attach(6);
+  servo3.attach(5);
+  servo4.attach(3);
+
+  pinMode(LEDMA, OUTPUT);
+  pinMode(LEDMM, OUTPUT);
+  pinMode(PINNext, INPUT_PULLUP);
+  pinMode(PINBefore, INPUT_PULLUP);
+  pinMode(PINMode, INPUT_PULLUP);
+
+  PBNext.attach(PINNext);
+  PBNext.interval(25);
+  PBBefore.attach(PINBefore);
+  PBBefore.interval(25);
+
+  modoManual = !digitalRead(PINMode); // Asume que LOW es manual
+
+  ModoLED(modoManual);
+  LoadConfig();
+  MoverServos();
+  MostrarenLCD();
+}
+
+void loop() {
+  PBNext.update();
+  PBBefore.update();
+
+  bool nuevoModoManual = !digitalRead(PINMode);
+  if (nuevoModoManual != modoManual) {
+    modoManual = nuevoModoManual;
+    ModoLED(modoManual);
+    if (!modoManual) LoadConfig();
+    delay(200); // Pequeño retraso para evitar rebotes
+  }
+
+  if (modoManual) {
+    LeerJoysticks();
+    MoverServos();
+  } else {
+    if (PBNext.fell()) {
+      NextConfig();
+      MoverServos();
+    }
+    if (PBBefore.fell()) {
+      PrevConfig();
+      MoverServos();
+    }
+  }
+
+  MostrarenLCD();
+  delay(150);
+}
+
+void LeerJoysticks() {
+  for (int i = 0; i < 4; i++) {
+    int lectura = analogRead(joystick[i]);
+    if (lectura > 450 && lectura < 570) lectura = 512; // zona muerta
+    angulos[i] = map(lectura, 0, 1023, 0, 180);
+  }
+}
+
+void NextConfig() {
+  ConfigActual = (ConfigActual + 1) % configuraciones;
+  LoadConfig();
+}
+
+void PrevConfig() {
+  ConfigActual = (ConfigActual - 1 + configuraciones) % configuraciones;
+  LoadConfig();
+}
+
+void LoadConfig() {
+  for (int i = 0; i < 4; i++) {
+    angulos[i] = rutina[ConfigActual][i];
+  }
+}
+// errores actuales, en modo automático, los botones no reaccionan, voy a tratar de verlo luego, por el momento la pantalla esta al 100, angulos fueron corregidos y se ven bien
+//switch ya no lee falsas señales, ya no hay trabas, led ya funcionan, el "modo" en el que esta la garra ya se imprime en la pantalla y no interrumpe la info de los servos
+void MoverServos() {
+  servo1.write(angulos[0]);
+  servo2.write(angulos[1]);
+  servo3.write(angulos[2]);
+  servo4.write(angulos[3]);
+}
+
+void MostrarenLCD() {
+  lcd.setCursor(0, 0); lcd.print("Servo 1: "); lcd.print(formatAngle(angulos[0]));
+  lcd.setCursor(0, 1); lcd.print("Servo 2: "); lcd.print(formatAngle(angulos[1]));
+  lcd.setCursor(0, 2); lcd.print("Servo 3: "); lcd.print(formatAngle(angulos[2]));
+  lcd.setCursor(0, 3); lcd.print("Servo 4: "); lcd.print(formatAngle(angulos[3]));
+  lcd.setCursor(13, 0); lcd.print("MODO: ");
+  lcd.print(modoManual ? "M" : "A");
+}
+
+String formatAngle(int angle) {
+  if (angle < 10) return "00" + String(angle);
+  else if (angle < 100) return "0" + String(angle);
+  else return String(angle);
+}
+
+void ModoLED(bool manual) {
+  digitalWrite(LEDMM, manual ? HIGH : LOW);
+  digitalWrite(LEDMA, manual ? LOW : HIGH);
+}
+
