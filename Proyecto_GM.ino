@@ -1,6 +1,5 @@
-//Pegado de WOKWI, Versión inicial del código
-//PROBLEMAS: Lectura de joystick no se muestra en la pantalla LCD, Switch cambia hasta el segundo cambio (no el primero); pushbuttons no realizan el cambio de configuraciones como debería.
-#include <LiquidCrystal.h>
+//Pegado de WOKWI, Versión final del código
+#include <LiquidCrystal.h> 
 #include <Servo.h>
 #include <Bounce2.h>
 
@@ -8,14 +7,19 @@ LiquidCrystal lcd(12,4,10,8,7,2);
 
 Servo servo1, servo2, servo3, servo4;
 int angulos[4]={90,90,90,90};
-const int joystick[4]={A0,A1,A2,A4};
+
+int angulosPrevios[4]={-1,-1,-1,-1};
+int configAnterior= -1;
+bool modoManual =false;
+bool modoManualPrevio= !modoManual;
+
+const int joystick[4]={A2,A3,A0,A1};
 
 const int PINNext = A5;
-const int PINBefore = A4;
+const int PINBefore = 13;
 const int PINMode = 11;
-const int LEDMA = A3;
+const int LEDMA = 0;
 const int LEDMM = 13;
-bool modoManual = false;
 
 Bounce PBNext = Bounce();
 Bounce PBBefore = Bounce();
@@ -39,6 +43,7 @@ void NextConfig();
 void PrevConfig();
 void LoadConfig();
 void Leerjoysticks();
+String formatAngle(int angle);
 
 void setup() {
   // put your setup code here, to run once:
@@ -55,13 +60,11 @@ void setup() {
   pinMode(PINBefore, INPUT);
   pinMode(PINMode, INPUT);
 
-  PBNext.attach(PINNext);
-  PBNext.interval(25);
-  PBBefore.attach(PINBefore);
-  PBBefore.interval(25);
-  PBMode.attach(PINMode);
-  PBMode.interval(25);
+  PBNext.attach(PINNext); PBNext.interval(25);
+  PBBefore.attach(PINBefore); PBBefore.interval(25);
+  PBMode.attach(PINMode); PBMode.interval(25);
 
+  modoManual = !digitalRead(PINMode);
   ModoLED(modoManual);
   LoadConfig();
   MoverServos();
@@ -74,15 +77,22 @@ void loop() {
   PBBefore.update();
   PBMode.update();
 
- if (PBMode.fell()){
-    modoManual = !modoManual;
+  bool nuevoModoManual = !digitalRead(PINMode);
+  if (nuevoModoManual != modoManual);{
+    modoManual = nuevoModoManual;
     ModoLED(modoManual);
-     if (!modoManual) LoadConfig();
- }
-if (modoManual){
-  LeerJoysticks();
-  MoverServos();
-} else{
+    if (!ModoManual){
+      LoadConfig();
+      MoverServos();
+      MostrarenLCD();
+    }
+    delay(200);
+  }
+  if (modoManual){
+    LeerJoysticks();
+    MoverServos();
+    MostrarenLCD(); 
+  } else{
     if (PBNext.fell()){
       NextConfig();
       MoverServos();
@@ -93,11 +103,10 @@ if (modoManual){
       MoverServos();
       MostrarenLCD();
       }
+  }
+  delay(50);
 }
 
-MostrarenLCD();
-delay(150);
-}
 
 
 void LeerJoysticks(){
