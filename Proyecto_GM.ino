@@ -107,15 +107,20 @@ void loop() {
   delay(50);
 }
 
-
-
 void LeerJoysticks(){
   for (int i=0; i<4; i++) {
     int lectura = analogRead(joystick[i]);
-    if (lectura > 450 && lectura < 570) lectura =512; //512 tomado como el valor central del joystick 1024/2=512
-    angulos[i] = map(lectura, 0, 1023, 0, 180);
+    if (lectura > 480 && lectura < 544) continue; 
+
+    if(lectura <= 480){
+      angulos[i]--;
+      if (angulos[i] < 0) angulos[i] = 0;
+    } else if (lectura >= 544){
+      angulos[i]++;
+      if (angulos[i] > 180) angulos[i] = 180;
+    }
   }
-  }
+}   
 
 void NextConfig() {
   ConfigActual=(ConfigActual + 1) % configuraciones;
