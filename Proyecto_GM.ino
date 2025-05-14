@@ -23,7 +23,7 @@ const int PINNext = A5;
 const int PINBefore = 13;
 const int PINMode = 11;
 const int LEDMA = 0;
-const int LEDMM = 13;
+const int LEDMM = 1;
 
 //Configuración de los botones para prevenir rebotes.
 Bounce PBNext = Bounce();
