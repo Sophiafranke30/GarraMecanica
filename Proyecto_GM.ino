@@ -9,7 +9,7 @@
 LiquidCrystal lcd(12,4,10,8,7,2);
 
 Servo servo1, servo2, servo3, servo4; //declar los que se utilizarán.ración de los se
-int angulos[4]={90,90,90,90}; //ángulos iniciales de los servos (corroborar con máquina)
+int angulos[4]={90,90,45,90}; //ángulos iniciales de los servos (corroborar con máquina)
 
 int angulosPrevios[4]={-1,-1,-1,-1};
 int configAnterior= -1;
@@ -19,11 +19,9 @@ bool modoManualPrevio= !modoManual; //guarda el estado previo en el modo manual 
 //declaración de los pines que tienen a los joysticks, botones y LEDs
 const int joystick[4]={A2,A3,A0,A1};
 
-const int PINNext = A5;
-const int PINBefore = 13;
+const int PINNext = 13;
+const int PINBefore = A5;
 const int PINMode = 11;
-const int LEDMA = 0;
-const int LEDMM = 1;
 
 //Configuración de los botones para prevenir rebotes.
 Bounce PBNext = Bounce();
@@ -33,11 +31,11 @@ Bounce PBMode = Bounce();
 //declaración de las 5 configuraciones del modo automático
 const int configuraciones = 5;
 int rutina[configuraciones][4] = {
-{90,90,90,90}, 
-{45,90,135,90},
-{90,45,90,180},
+{90,90,45,90}, 
+{45,90,15,90},
+{90,45,30,180},
 {135,135,45,45},
-{180,90,90,45}
+{180,90,30,45}
 };
 
 int ConfigActual = 0;
@@ -56,13 +54,12 @@ void setup() {
   // put your setup code here, to run once:
   lcd.begin(20,4);
   
-  servo1.attach(9);
-  servo2.attach(6);
-  servo3.attach(5);
-  servo4.attach(3);
+  servo1.attach(9); //Servo Derecho
+  servo2.attach(6); // Servo Izquierdo
+  servo3.attach(5); //Servo Garra
+  servo4.attach(3); // Servo Base
   
-  pinMode(LEDMA, OUTPUT);
-  pinMode(LEDMM, OUTPUT);
+  
   pinMode(PINNext, INPUT);
   pinMode(PINBefore, INPUT);
   pinMode(PINMode, INPUT);
@@ -74,7 +71,6 @@ void setup() {
   PBMode.attach(PINMode); PBMode.interval(25);
 
   modoManual = !digitalRead(PINMode); //lee el estado en el que se encuentra el switch
-  ModoLED(modoManual); //activa el LED correspondiente al estado
 
   //llama las funciones siguientes para cargar la configuración actual, mover los servos correspondientes y mostrar en el LCD lo que se le pida.
   LoadConfig(); 
@@ -198,8 +194,3 @@ else if (angle < 100) return "0" + String(angle); //para números menorea a 100 
 else return String(angle); //para números mayores a 100 los formatea como, por ejemplo, "145"
 }
 
-//Cambia los LEDS según el modo en el que se encuentre
-void ModoLED(bool manual){
-  digitalWrite(LEDMM, manual ? HIGH:LOW); //OPeración ternario equivalente a if else if
-  digitalWrite(LEDMA, manual ? LOW:HIGH);
-}
