@@ -32,8 +32,8 @@ Bounce PBMode = Bounce();
 const int configuraciones = 5;
 int rutina[configuraciones][4] = {
 {90,90,45,90}, 
-{45,90,15,90},
-{90,45,30,180},
+{105,90,15,90},
+{90,105,30,180},
 {135,135,45,45},
 {180,90,30,45}
 };
