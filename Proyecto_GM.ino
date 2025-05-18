@@ -8,15 +8,15 @@
 
 LiquidCrystal lcd(12,4,10,8,7,2);
 
-Servo servo1, servo2, servo3, servo4; //declar los que se utilizarán.ración de los se
-int angulos[4]={90,90,45,90}; //ángulos iniciales de los servos (corroborar con máquina)
+Servo servo1, servo2, servo3, servo4; //declaración de los servos que se utilizarán
+int angulos[4]={90,90,45,90}; //ángulos iniciales de los servos
 
 int angulosPrevios[4]={-1,-1,-1,-1};
 int configAnterior= -1;
 bool modoManual =false;
 bool modoManualPrevio= !modoManual; //guarda el estado previo en el modo manual o mecánico
 
-//declaración de los pines que tienen a los joysticks, botones y LEDs
+//declaración de los pines que tienen a los joysticksotones
 const int joystick[4]={A2,A3,A0,A1};
 
 const int PINNext = 13;
@@ -41,7 +41,6 @@ int rutina[configuraciones][4] = {
 int ConfigActual = 0;
 
 //Prototipeado de las funciones
-void ModoLED(bool manual);
 void MoverServos();
 void MostrarenLCD();
 void NextConfig();
@@ -88,7 +87,6 @@ void loop() {
   bool nuevoModoManual = !digitalRead(PINMode); //detecta si se cambió de modo en el switch
   if (nuevoModoManual != modoManual);{
     modoManual = nuevoModoManual;
-    ModoLED(modoManual);
     if (!modoManual){
       LoadConfig();
       MoverServos();
@@ -140,10 +138,10 @@ void PrevConfig(){
   ConfigActual=(ConfigActual - 1 + configuraciones) % configuraciones; // se le suman las configuraciones para asegurar que de 0 no vaya a -1, sino que regrese a 5 ya que esta es la última configuración.
   LoadConfig();
 } 
-//Carga la configuración actual de los servos.
 
+//Carga la configuración actual de los servos.
 void LoadConfig(){
-  for (int i=0; i < 4; i++){ //array de 
+  for (int i=0; i < 4; i++){ //array de ángulos 
   angulos[i] = rutina[ConfigActual][i];
   } }
 
