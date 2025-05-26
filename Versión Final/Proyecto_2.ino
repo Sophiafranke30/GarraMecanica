@@ -1,3 +1,6 @@
+//Sophia Franke 23030
+//Dulce Ovando 23441
+//PROYECTO 2 | Electrónica Digital I
 #include <Servo.h>
 #include <LiquidCrystal.h>
 
@@ -59,21 +62,16 @@ void setup() {
 
 void loop() {
   leerModo();
-
   if (modoManual) {
     manualControl();
-   
   } else {
-    automatico();
-    
+    automatico(); 
   }
-
   moverServos();
   updateLCD();
 }
 
 //Funciones Utilizadas
-
 void leerModo() {
   int lectura = digitalRead(SWITCH_MODE);
   modoManual = (lectura == LOW);  // LOW = Manual
