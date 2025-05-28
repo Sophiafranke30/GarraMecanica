@@ -4,24 +4,24 @@
 #include <Servo.h>
 #include <LiquidCrystal.h>
 
-// Prototipado
-void manualControl();
-void automatico();
-void moverServos();
-void updateLCD();
-void leerModo();
-String formatAngle(int angle);
+// Prototipado de funciones
+void manualControl(); //Control manual con joysticks
+void automatico();  //Control automático con rutina
+void moverServos();  //Envía posiciones a los servos
+void updateLCD();  // Actualiza información en pantalla LCD
+void leerModo();  // Lee si el modo es manual o automático
+String formatAngle(int angle);  // Da formato al ángulo (con ° y ceros a la izquierda)
 
-Servo servo1, servo2, servo3, servo4;  // servo1 = base, servo2 = der, servo3 = izq, servo4 = pinza
+Servo servo1, servo2, servo3, servo4;  
 LiquidCrystal lcd(9, 10, 11, 12, 13, A4); // LCD: RS, E, D4, D5, D6, D7
 
-
+// Definición de entradas joysticks
 #define JSTK_1_X A0  // Servo1: Base
 #define JSTK_1_Y A1  // Servo4: Pinza (limitada)
 #define JSTK_2_X A2  // Servo2: Derecho
 #define JSTK_2_Y A3  // Servo3: Izquierdo
 
-
+// Definición de botones y switch de modo
 #define BTN_SIG 2
 #define BTN_ANT 7
 #define SWITCH_MODE 8
