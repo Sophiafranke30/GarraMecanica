@@ -23,7 +23,7 @@ El proyecto consiste en el control de un brazo robótico de 4 grados de libertad
   - 2 LEDs para determinar el estado
   - 1 Switch para cambiar de modo de operación.
   - Resistencias 220 Ohms
-  - 
+    
 ## **2. Librerías utilizadas:**
   - **_Servo.h_**: para los servomotores.
 
