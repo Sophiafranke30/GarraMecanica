@@ -28,7 +28,7 @@ El proyecto consiste en el control de un brazo robótico de 4 grados de libertad
   - **_Servo.h_**: para los servomotores.
 
 ## **3. Funciones a Utilizar:**
-  - **_modoManual**():_** lee los valores dados por los potenciómetros y los mapea en un rango de 0° a 180° para que estos sean escritos en cada uno de los servos.
+  - **_modoManual():_** lee los valores dados por los potenciómetros y los mapea en un rango de 0° a 180° para que estos sean escritos en cada uno de los servos.
   
   - **_modoAutomatico():_** lee cuando esté un botón en HIGH o en LOW para avanzar o retroceder en la rutina cíclica y utiliza case switch para escribir las posiciones en los potenciómetros.
     
