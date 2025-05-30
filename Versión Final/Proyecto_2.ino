@@ -1,189 +1,156 @@
-//Sophia Franke 23030
-//Dulce Ovando 23441
-//PROYECTO 2 | Electrónica Digital I
+// Sophia Franke | 23030
+// Dulce Ovando  | 23441
+//Proyecto II
+//Electrónica Digital I
+
 #include <Servo.h>
-#include <LiquidCrystal.h>
 
-// Prototipado de funciones
-void manualControl(); //Control manual con joysticks
-void automatico();  //Control automático con rutina
-void moverServos();  //Envía posiciones a los servos
-void updateLCD();  // Actualiza información en pantalla LCD
-void leerModo();  // Lee si el modo es manual o automático
-String formatAngle(int angle);  // Da formato al ángulo (con ° y ceros a la izquierda)
+Servo servoBase, servoBrazoIzquierdo, servoBrazoDerecho, servoGarra;
 
-Servo servo1, servo2, servo3, servo4;  
-LiquidCrystal lcd(9, 10, 11, 12, 13, A4); // LCD: RS, E, D4, D5, D6, D7
+const int pinPotenciometroBase = A3;
+const int pinPotenciometroBrazoIzq = A2;
+const int pinPotenciometroBrazoDer = A1;
+const int pinPotenciometroGarra = A4;
 
-// Definición de entradas joysticks
-#define JSTK_1_X A0  // Servo1: Base
-#define JSTK_1_Y A1  // Servo4: Pinza (limitada)
-#define JSTK_2_X A2  // Servo2: Derecho
-#define JSTK_2_Y A3  // Servo3: Izquierdo
+const int pinBotonSiguiente = 4;
+const int pinBotonAnterior = 2;
+const int pinInterruptorModo = 7;
 
-// Definición de botones y switch de modo
-#define BTN_SIG 2
-#define BTN_ANT 7
-#define SWITCH_MODE 8
+const int pinLedManual = 8;
+const int pinLedAutomatico = 9;
 
+int rutinaActual = 0;
 
-int rutina[5][4] = {
-  { 0, 45, 45, 90 },
-  { 45, 90, 90, 60 },
-  { 90, 0, 0, 75 },
-  { 135, 120, 120, 45 },
-  { 180, 45, 45, 80 }
-};
+//Modo automático con rutinas preestablecidas mediante pushbuttons
+void modoAutomatico() {
+  digitalWrite(pinLedAutomatico, HIGH);
+  digitalWrite(pinLedManual, LOW);
 
-int pos1 = 90, pos2 = 90, pos3 = 90, pos4 = 90;
-int pasoActual = 0;
-bool modoManual = true;
+  // Cambio de rutina con botones cíclica
+  if (digitalRead(pinBotonSiguiente) == LOW) {
+    rutinaActual = (rutinaActual + 1) % 5;
+    delay(300);  
+  }
 
-unsigned long lastDebounceTime = 0;
-const unsigned long debounceDelay = 200;
+  if (digitalRead(pinBotonAnterior) == LOW) {
+    rutinaActual = (rutinaActual - 1 + 5) % 5;
+    delay(300);  
+  }
+
+  // Ejecutar rutina según el número actual
+  switch (rutinaActual) {
+    case 0:
+      servoBase.write(10);
+      servoBrazoIzquierdo.write(30);
+      servoBrazoDerecho.write(30);
+      servoGarra.write(100);
+      break;
+    case 1:
+      servoBase.write(50);
+      servoBrazoIzquierdo.write(80);
+      servoBrazoDerecho.write(80);
+      servoGarra.write(120);
+      break;
+    case 2:
+      servoBase.write(70);
+      servoBrazoIzquierdo.write(100);
+      servoBrazoDerecho.write(100);
+      servoGarra.write(45);
+      break;
+    case 3:
+      servoBase.write(30);
+      servoBrazoIzquierdo.write(150);
+      servoBrazoDerecho.write(150);
+      servoGarra.write(180);
+      break;
+    case 4:
+      servoBase.write(10);
+      servoBrazoIzquierdo.write(75);
+      servoBrazoDerecho.write(75);
+      servoGarra.write(20);
+      break;
+  }
+}
+
+//modo manual mediante potenciómetros
+void modoManual() {
+  digitalWrite(pinLedAutomatico, LOW);
+  digitalWrite(pinLedManual, HIGH);
+
+//mapeo de la lectura de los potencióemtros. Constrain para que no se pasen de 180°
+  int posBase = constrain(map(analogRead(pinPotenciometroBase), 0, 1023, 0, 180), 0, 180);
+  int posIzq = constrain(map(analogRead(pinPotenciometroBrazoIzq), 0, 1023, 0, 180), 0, 180);
+  int posDer = constrain(map(analogRead(pinPotenciometroBrazoDer), 0, 1023, 0, 180), 0, 180);
+  int posGarra = constrain(map(analogRead(pinPotenciometroGarra), 0, 1023, 0, 180), 0, 180);
+
+//Cambio de los servos a la posición establecida por el potenciómetro
+  servoBase.write(posBase);
+  servoBrazoIzquierdo.write(posIzq);
+  servoBrazoDerecho.write(posDer);
+  servoGarra.write(posGarra);
+}
+
+//Impresión del estado en el monitor serial
+void imprimirEstado() {
+  static unsigned long ultimoTiempoImpresion = 0;
+  const unsigned long intervaloImpresion = 2500; //impresión cada 2.5 segundos para que se vea más refinado.
+
+  if (millis() - ultimoTiempoImpresion >= intervaloImpresion) {
+    Serial.println("\n=== ESTADO ACTUAL ===");
+    Serial.print("Modo: ");
+    Serial.println(digitalRead(pinInterruptorModo) ? "Automático" : "Manual");
+
+    if (digitalRead(pinInterruptorModo)) {
+      Serial.print("Rutina actual: ");
+      Serial.println(rutinaActual + 1);
+    }
+
+    Serial.println("Posiciones servos:");
+    Serial.print("Servo 1 (Base): ");
+    Serial.print(servoBase.read());
+    Serial.println("°");
+
+    Serial.print("Servo 2 (Brazo Izq): ");
+    Serial.print(servoBrazoIzquierdo.read());
+    Serial.println("°");
+
+    Serial.print("Servo 3 (Brazo Der): ");
+    Serial.print(servoBrazoDerecho.read());
+    Serial.println("°");
+
+    Serial.print("Servo 4 (Garra): ");
+    Serial.print(servoGarra.read());
+    Serial.println("°");
+
+    Serial.println("___________.w._____________");
+
+    ultimoTiempoImpresion = millis();
+  }
+}
 
 void setup() {
-  servo1.attach(5);  // base
-  servo2.attach(6);  // derecho
-  servo3.attach(3);  // izquierdo
-  servo4.attach(4);  // pinza
+  Serial.begin(9600);
 
-  pinMode(BTN_SIG, INPUT_PULLUP);
-  pinMode(BTN_ANT, INPUT_PULLUP);
-  pinMode(SWITCH_MODE, INPUT);
+  servoBase.attach(11);
+  servoBrazoIzquierdo.attach(10);
+  servoBrazoDerecho.attach(5);
+  servoGarra.attach(3);
 
-  lcd.begin(20, 4);
-  lcd.clear();
+  pinMode(pinBotonSiguiente, INPUT_PULLUP);
+  pinMode(pinBotonAnterior, INPUT_PULLUP);
+  pinMode(pinInterruptorModo, INPUT_PULLUP);
 
-  leerModo();
-  moverServos();
-  updateLCD();
+  pinMode(pinLedManual, OUTPUT);
+  pinMode(pinLedAutomatico, OUTPUT);
 }
 
 void loop() {
-  leerModo();
-  if (modoManual) {
-    manualControl();
+  if (digitalRead(pinInterruptorModo)) {
+    modoAutomatico();
   } else {
-    automatico(); 
-  }
-  moverServos();
-  updateLCD();
-}
-
-//Funciones Utilizadas
-void leerModo() {
-  int lectura = digitalRead(SWITCH_MODE);
-  modoManual = (lectura == LOW);  // LOW = Manual
-}
-
-void manualControl() {
-  static int t1 = 90, t2 = 90, t3 = 90, t4 = 90;
-
-  int pos1Read = map(analogRead(JSTK_1_X), 0, 1023, 0, 180);
-  int pos4Read = map(analogRead(JSTK_1_Y), 0, 1023, 45, 90);
-  pos4Read = constrain(pos4Read, 45, 90);
-  int pos2Read = map(analogRead(JSTK_2_X), 0, 1023, 0, 180);
-  int pos3Read = map(analogRead(JSTK_2_Y), 0, 1023, 0, 180);
-
-  if (t1 < pos1Read) t1++;
-  else if (t1 > pos1Read) t1--;
-  if (t2 < pos2Read) t2++;
-  else if (t2 > pos2Read) t2--;
-  if (t3 < pos3Read) t3++;
-  else if (t3 > pos3Read) t3--;
-  if (t4 < pos4Read) t4++;
-  else if (t4 > pos4Read) t4--;
-
-  pos1 = t1;
-  pos2 = t2;
-  pos3 = t3;
-  pos4 = t4;
-}
-
-void automatico() {
-  static int t1 = 90, t2 = 90, t3 = 90, t4 = 90;
-
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (digitalRead(BTN_SIG) == LOW) {
-      pasoActual = (pasoActual + 1) % 5;
-      lastDebounceTime = millis();
-    }
-    if (digitalRead(BTN_ANT) == LOW) {
-      pasoActual = (pasoActual - 1 + 5) % 5;
-      lastDebounceTime = millis();
-    }
+    modoManual();
   }
 
-  int pos1Read = rutina[pasoActual][0];
-  int pos2Read = rutina[pasoActual][1];
-  int pos3Read = rutina[pasoActual][2];
-  int pos4Read = constrain(rutina[pasoActual][3], 45, 90);
-
-  if (t1 < pos1Read) t1++;
-  else if (t1 > pos1Read) t1--;
-  if (t2 < pos2Read) t2++;
-  else if (t2 > pos2Read) t2--;
-  if (t3 < pos3Read) t3++;
-  else if (t3 > pos3Read) t3--;
-  if (t4 < pos4Read) t4++;
-  else if (t4 > pos4Read) t4--;
-
-  pos1 = t1;
-  pos2 = t2;
-  pos3 = t3;
-  pos4 = t4;
-}
-
-void moverServos() {
-  servo1.write(pos1);
-  servo2.write(pos2);
-  servo3.write(pos3);
-  servo4.write(pos4);
-}
-
-String formatAngle(int angle) {
-  String txt = String(angle);
-  while (txt.length() < 3) txt = "0" + txt;
-  return txt + "\xDF";  // ° símbolo
-}
-
-void updateLCD() {
-  static int lastPos1 = -1, lastPos2 = -1, lastPos3 = -1, lastPos4 = -1;
-  static bool lastModoManual = !modoManual;
-  static int lastPaso = -1;
-
-  if (pos1 != lastPos1 || pos2 != lastPos2 || pos3 != lastPos3 || pos4 != lastPos4 || modoManual != lastModoManual || (!modoManual && pasoActual != lastPaso)) {
-    lcd.setCursor(0, 0);
-    lcd.print("Modo: ");
-    lcd.print(modoManual ? "M" : "A");
-    lcd.print("        ");
-
-    lcd.setCursor(0, 1);
-    lcd.print("L:"); lcd.print(formatAngle(pos3));
-    lcd.print(" R:"); lcd.print(formatAngle(pos2));
-    lcd.print("     ");
-
-    lcd.setCursor(0, 2);
-    lcd.print("B:"); lcd.print(formatAngle(pos1));
-    lcd.print(" G:"); lcd.print(formatAngle(pos4));
-    lcd.print("     ");
-
-    lcd.setCursor(0, 3);
-    if (!modoManual) {
-      lcd.print("Rutina actual: ");
-      lcd.print(pasoActual + 1);
-      lcd.print("   ");
-    } else {
-      lcd.print("Joystick activo     ");
-    }
-
-    // guarda las últimas lecturas.
-    lastPos1 = pos1;
-    lastPos2 = pos2;
-    lastPos3 = pos3;
-    lastPos4 = pos4;
-    lastModoManual = modoManual;
-    lastPaso = pasoActual;
-  }
+  imprimirEstado();
+  delay(10);
 }
